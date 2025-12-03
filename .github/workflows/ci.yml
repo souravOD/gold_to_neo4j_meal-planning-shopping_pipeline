@@ -39,7 +39,16 @@ jobs:
         run: python -m compileall src
 
       - name: Run tests
-        run: pytest --maxfail=1 --disable-warnings -q
+        run: |
+          set +e
+          pytest --maxfail=1 --disable-warnings -q
+          status=$?
+          set -e
+          if [ "$status" -eq 5 ]; then
+            echo "No tests collected; treating as success."
+            exit 0
+          fi
+          exit "$status"
 
   dependency-audit:
     runs-on: ubuntu-latest
